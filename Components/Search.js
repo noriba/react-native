@@ -30,13 +30,22 @@ class Search extends React.Component {
     _loadFilms() {
         if (this.searchedText.length > 0) {
             this.setState({isLoading: true})
+            console.log("page : ", this.page)
+            console.log("avant : ",this.state.films)
             getFilmsFromApiWithSearchedText(this.searchedText, this.page + 1).then(data => {
+
+
+                console.log("data from API : ",data)
                 this.page = data.page
                 this.totalPages = data.total_pages
+
                 this.setState({
                     films: [...this.state.films, ...data.results],
                     isLoading: false
                 })
+                console.log("page : ", this.page)
+                console.log("apres :",this.state.films)
+
             })
         }
     }
@@ -56,7 +65,7 @@ class Search extends React.Component {
         this.page = 0
         this.totalPages = 0
         this.setState({
-            films: [],
+            films: []
         }, () => {
             console.log("Page : " + this.page + " / TotalPages : " + this.totalPages + " / Nombre de films : " + this.state.films.length)
             this._loadFilms()
@@ -68,7 +77,7 @@ class Search extends React.Component {
 
         return (
 
-            <View style={styles.main_container}>
+            <View style={styles.main_container2}>
                 <View style={styles.view1}>
                     <TextInput style={styles.textinput}
                                placeholder='Titre du film'
@@ -81,14 +90,16 @@ class Search extends React.Component {
                 </View>
                 <View style={{flex: 6, flexDirection: 'row', backgroundColor: 'red'}}>
 
-                    <View style={styles.text}>
+                    <View style={styles.text1}>
                         <FlatList
                             data={this.state.films}
+                            initialNumToRender={10}
                             keyExtractor={(item) => item.id.toString()}
-                            renderItem={({item}) => <FilmItem film={item} displayDetailForFilm={this._displayDetailForFilm} />}
-                            onEndReachedThreshold={0.1}
+                            renderItem={({item}) => <FilmItem filmId={this.state.films.findIndex(i => i.id === item.id)} film={item} displayDetailForFilm={this._displayDetailForFilm} />}
+                            onEndReachedThreshold={0.5}
                             onEndReached={() => {
                                 if (this.page < this.totalPages) { // On vérifie qu'on n'a pas atteint la fin de la pagination (totalPages) avant de charger plus d'éléments
+                                    console.log("Calling API to loadfilms...")
                                     this._loadFilms()
                                 }
                             }}
@@ -106,7 +117,7 @@ class Search extends React.Component {
 
 
 const styles = StyleSheet.create({
-    main_container: {
+    main_container2: {
         flex: 1,
     },
     loading_container: {
@@ -130,7 +141,7 @@ const styles = StyleSheet.create({
     view1: {
         marginTop: 20,
     },
-    text: {
+    text1: {
         flex: 4,
 
         backgroundColor: 'white'

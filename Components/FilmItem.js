@@ -1,11 +1,21 @@
 import React from 'react'
 import {StyleSheet, View, Text, Image, TouchableOpacity} from 'react-native'
+import {getImageFromApi} from "../API/TMDBApi";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import {connect} from "react-redux";
 
 class FilmItem extends React.Component {
-    render() {
-        console.log(this.props)
+    _toggleFavorite() {
+        const action = {type: "TOGGLE_FAVORITE", value: this.props.film}
+        this.props.dispatch(action)
 
-        const { film, displayDetailForFilm } = this.props
+    }
+    getFav() {
+        return this.props.favoritesFilm.find(item => item.id === this.props.film.id) ? "heart" : "heart-outline";
+    }
+    render() {
+
+        const { filmId,film, displayDetailForFilm } = this.props
         return (
             <TouchableOpacity style={styles.main_container}
                   onPress={() => displayDetailForFilm(film.id)}>
@@ -13,11 +23,18 @@ class FilmItem extends React.Component {
 
                 <Image
                     style={styles.image}
-                    source={{uri: "https://themoviedb.org/t/p/w220_and_h330_face"+film.poster_path}}
+                    source={{uri: getImageFromApi(film.poster_path)}}
                 />
                 <View style={styles.content_container}>
                     <View style={styles.header_container}>
-                        <Text style={styles.title_text}>{film.title}</Text>
+                        <Icon
+                            style={styles.fav}
+                            name={this.getFav()}
+                            color="red"
+                            size={30}
+                            onPress={() => this._toggleFavorite()}
+                        />
+                        <Text style={styles.title_text}> {film.title}</Text>
                         <Text style={styles.vote_text}>{film.vote_average}</Text>
                     </View>
                     <View style={styles.description_container}>
@@ -31,6 +48,8 @@ class FilmItem extends React.Component {
         )
     }
 }
+
+
 
 const styles = StyleSheet.create({
     main_container: {
@@ -76,7 +95,16 @@ const styles = StyleSheet.create({
     date_text: {
         textAlign: 'right',
         fontSize: 14
+    },
+    fav: {
+        elevation:2
     }
 })
 
-export default FilmItem
+const mapStateToProps = (state) => {
+    return {
+        favoritesFilm: state.favoritesFilm
+    }
+}
+
+export default connect(mapStateToProps)(FilmItem)
