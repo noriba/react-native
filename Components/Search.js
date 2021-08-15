@@ -2,7 +2,8 @@ import React from 'react'
 import {StyleSheet, View, TextInput, Button, FlatList, Text, ActivityIndicator} from 'react-native'
 import films from '../Helpers/filmsData'
 import FilmItem from "./FilmItem";
-import {getFilmsFromApiWithSearchedText} from '../API/TMDBApi'; // import { } from ... car c'est un export nommé dans TMDBApi.js
+import {getFilmsFromApiWithSearchedText} from '../API/TMDBApi';
+import {connect} from "react-redux"; // import { } from ... car c'est un export nommé dans TMDBApi.js
 
 class Search extends React.Component {
 
@@ -24,18 +25,18 @@ class Search extends React.Component {
 
     _displayDetailForFilm = (idFilm) => {
         console.log("Display film with id " + idFilm)
-        this.props.navigation.navigate("FilmDetail", { idFilm: idFilm })
+        this.props.navigation.navigate("FilmDetail", {idFilm: idFilm})
     }
 
     _loadFilms() {
         if (this.searchedText.length > 0) {
             this.setState({isLoading: true})
             console.log("page : ", this.page)
-            console.log("avant : ",this.state.films)
+            console.log("avant : ", this.state.films)
             getFilmsFromApiWithSearchedText(this.searchedText, this.page + 1).then(data => {
 
 
-                console.log("data from API : ",data)
+                console.log("data from API : ", data)
                 this.page = data.page
                 this.totalPages = data.total_pages
 
@@ -44,10 +45,20 @@ class Search extends React.Component {
                     isLoading: false
                 })
                 console.log("page : ", this.page)
-                console.log("apres :",this.state.films)
+                console.log("apres :", this.state.films)
 
             })
         }
+    }
+
+    _getFav(currentItem) {
+        return this.props.favoritesFilm.find(item => item.id === currentItem.id);
+    }
+
+    _toggleFav(currentItem) {
+        const action = {type: "TOGGLE_FAVORITE", value: currentItem}
+        this.props.dispatch(action)
+
     }
 
     _displayLoading() {
@@ -95,7 +106,12 @@ class Search extends React.Component {
                             data={this.state.films}
                             initialNumToRender={10}
                             keyExtractor={(item) => item.id.toString()}
-                            renderItem={({item}) => <FilmItem filmId={this.state.films.findIndex(i => i.id === item.id)} film={item} displayDetailForFilm={this._displayDetailForFilm} />}
+                            renderItem={({item}) =>
+                                <FilmItem toggle={() => this._toggleFav(item)}
+                                          isFilmFavorite={this._getFav(item)}
+                                          filmId={this.state.films.findIndex(i => i.id === item.id)}
+                                          film={item} displayDetailForFilm={this._displayDetailForFilm}
+                                />}
                             onEndReachedThreshold={0.5}
                             onEndReached={() => {
                                 if (this.page < this.totalPages) { // On vérifie qu'on n'a pas atteint la fin de la pagination (totalPages) avant de charger plus d'éléments
@@ -103,6 +119,7 @@ class Search extends React.Component {
                                     this._loadFilms()
                                 }
                             }}
+                            extraData={this.props.favoritesFilm}
                         />
 
                         {this._displayLoading()}
@@ -148,5 +165,11 @@ const styles = StyleSheet.create({
     }
 })
 
+const mapStateToProps = (state) => {
+    return {
+        favoritesFilm: state.favoritesFilm
+    }
+}
 
-export default Search
+
+export default connect(mapStateToProps)(Search)

@@ -4,18 +4,20 @@ import {getImageFromApi} from "../API/TMDBApi";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import {connect} from "react-redux";
 
-class FilmItem extends React.Component {
+class FilmItem  extends React.Component  {
+
+
     _toggleFavorite() {
         const action = {type: "TOGGLE_FAVORITE", value: this.props.film}
         this.props.dispatch(action)
 
     }
     getFav() {
-        return this.props.favoritesFilm.find(item => item.id === this.props.film.id) ? "heart" : "heart-outline";
+        return this.props.isFilmFavorite ? "heart" : "heart-outline";
     }
     render() {
 
-        const { filmId,film, displayDetailForFilm } = this.props
+        const { filmId,film, displayDetailForFilm, isFilmFavorite ,toggle} = this.props
         return (
             <TouchableOpacity style={styles.main_container}
                   onPress={() => displayDetailForFilm(film.id)}>
@@ -32,7 +34,7 @@ class FilmItem extends React.Component {
                             name={this.getFav()}
                             color="red"
                             size={30}
-                            onPress={() => this._toggleFavorite()}
+                            onPress={toggle}
                         />
                         <Text style={styles.title_text}> {film.title}</Text>
                         <Text style={styles.vote_text}>{film.vote_average}</Text>
@@ -101,10 +103,6 @@ const styles = StyleSheet.create({
     }
 })
 
-const mapStateToProps = (state) => {
-    return {
-        favoritesFilm: state.favoritesFilm
-    }
-}
 
-export default connect(mapStateToProps)(FilmItem)
+
+export default FilmItem
