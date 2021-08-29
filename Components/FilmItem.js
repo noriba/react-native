@@ -4,7 +4,7 @@ import {getImageFromApi} from "../API/TMDBApi";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import {connect} from "react-redux";
 
-class FilmItem  extends React.Component  {
+class FilmItem extends React.Component {
 
 
     _toggleFavorite() {
@@ -12,17 +12,18 @@ class FilmItem  extends React.Component  {
         this.props.dispatch(action)
 
     }
+
     getFav() {
         return this.props.isFilmFavorite ? "heart" : "heart-outline";
     }
+
     render() {
 
-        const { filmId,film, displayDetailForFilm, isFilmFavorite ,toggle} = this.props
+        const {filmId, film, displayDetailForFilm, isFilmFavorite, toggle} = this.props
         return (
             <TouchableOpacity style={styles.main_container}
-                  onPress={() => displayDetailForFilm(film.id)}>
-
-
+                              onPress={() => displayDetailForFilm(film.id)}
+            >
                 <Image
                     style={styles.image}
                     source={{uri: getImageFromApi(film.poster_path)}}
@@ -50,7 +51,6 @@ class FilmItem  extends React.Component  {
         )
     }
 }
-
 
 
 const styles = StyleSheet.create({
@@ -99,10 +99,9 @@ const styles = StyleSheet.create({
         fontSize: 14
     },
     fav: {
-        elevation:2
+        elevation: 2
     }
 })
-
 
 
 export default FilmItem

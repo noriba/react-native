@@ -62,6 +62,9 @@ class FilmDetail extends React.Component {
                     />
 
                     <Text style={styles.title_text}>
+                        {this.state.film.title}
+                    </Text>
+                    <Text style={styles.favDetail}>
                         <Icon
                             style={styles.fav}
                             name={this.getFav()}
@@ -69,8 +72,7 @@ class FilmDetail extends React.Component {
                             size={30}
                             onPress={() => this._toggleFavorite()}
                         />
-
-                        {this.state.film.title}</Text>
+                    </Text>
                     <Text style={styles.description_text}>{this.state.film.overview}</Text>
                     <Text style={styles.default_text}>Sortie le
                         : {moment(new Date(this.state.film.release_date)).format('DD/MM/YYYY')}</Text>
@@ -132,7 +134,7 @@ const styles = StyleSheet.create({
         marginLeft: 5,
         marginRight: 5,
         marginTop: 10,
-        marginBottom: 10,
+        marginBottom: 5,
         color: '#000000',
         textAlign: 'center'
     },
@@ -147,7 +149,9 @@ const styles = StyleSheet.create({
         marginRight: 5,
         marginTop: 5,
     },
-    fav: {
+    favDetail: {
+        textAlign: 'center'
+
     }
 })
 

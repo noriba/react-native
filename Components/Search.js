@@ -3,7 +3,8 @@ import {StyleSheet, View, TextInput, Button, FlatList, Text, ActivityIndicator} 
 import films from '../Helpers/filmsData'
 import FilmItem from "./FilmItem";
 import {getFilmsFromApiWithSearchedText} from '../API/TMDBApi';
-import {connect} from "react-redux"; // import { } from ... car c'est un export nommé dans TMDBApi.js
+import {connect} from "react-redux";
+import FilmList from "./FilmList"; // import { } from ... car c'est un export nommé dans TMDBApi.js
 
 class Search extends React.Component {
 
@@ -13,27 +14,33 @@ class Search extends React.Component {
         this.totalPages = 0 // Nombre de pages totales pour savoir si on a atteint la fin des retours de l'API TMDB
         this.state = {
             films: [],
-            isLoading: false // Par défaut à false car il n'y a pas de chargement tant qu'on ne lance pas de recherche
+            isLoading: false, // Par défaut à false car il n'y a pas de chargement tant qu'on ne lance pas de recherche
+            searchedText: ""
 
         }
-        this.searchedText = ""
+        //this._loadFilms = this._loadFilms.bind(this)
+
     }
 
     _searchTextInputChanged(text) {
-        this.searchedText = text
+        this.setState({searchedText: text})
     }
 
     _displayDetailForFilm = (idFilm) => {
         console.log("Display film with id " + idFilm)
+
         this.props.navigation.navigate("FilmDetail", {idFilm: idFilm})
     }
 
-    _loadFilms() {
-        if (this.searchedText.length > 0) {
+    _loadFilms= ()=> {
+        //console.log("props: ",this._loadFilms)
+        //console.log("state: ", this.state)
+
+        if (this.state.searchedText.length > 0) {
             this.setState({isLoading: true})
             console.log("page : ", this.page)
             console.log("avant : ", this.state.films)
-            getFilmsFromApiWithSearchedText(this.searchedText, this.page + 1).then(data => {
+            getFilmsFromApiWithSearchedText(this.state.searchedText, this.page + 1).then(data => {
 
 
                 console.log("data from API : ", data)
@@ -99,6 +106,7 @@ class Search extends React.Component {
                     {/* Ici j'ai simplement repris l'exemple sur la documentation de la FlatList */}
 
                 </View>
+                {/*
                 <View style={{flex: 6, flexDirection: 'row', backgroundColor: 'red'}}>
 
                     <View style={styles.text1}>
@@ -127,6 +135,19 @@ class Search extends React.Component {
                     </View>
 
                 </View>
+*/}
+                <FilmList
+                    films={this.state.films}
+                    favoritesFilm={this.props.favoritesFilm}
+                    toggleFav={(item) => this._toggleFav(item)}
+                    displayDetailForFilmOfList={this._displayDetailForFilm}
+                    navigation={this.props.navigation} // Ici on transmet les informations de navigation pour permettre au component FilmList de naviguer vers le détail d'un film
+                    loadFilms={this._loadFilms} // _loadFilm charge les films suivants, ça concerne l'API, le component FilmList va juste appeler cette méthode quand l'utilisateur aura parcouru tous les films et c'est le component Search qui lui fournira les films suivants
+                    page={this.page}
+                    totalPages={this.totalPages} // les infos page et totalPages vont être utile, côté component FilmList, pour ne pas déclencher l'évènement pour charger plus de film si on a atteint la dernière page
+                    extraData={this.props.favoritesFilm}
+                />
+                {this._displayLoading()}
             </View>
         )
     }
@@ -160,14 +181,14 @@ const styles = StyleSheet.create({
     },
     text1: {
         flex: 4,
-
         backgroundColor: 'white'
     }
 })
 
 const mapStateToProps = (state) => {
     return {
-        favoritesFilm: state.favoritesFilm
+        favoritesFilm: state.favoritesFilm,
+        searchedText: state.searchedText
     }
 }
 
